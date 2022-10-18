@@ -69,6 +69,7 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
+            app.logger.info("Invalid login attempt. ")
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
@@ -76,6 +77,7 @@ def login():
             next_page = url_for('home')
         return redirect(next_page)
     session["state"] = str(uuid.uuid4())
+    app.logger.info('%s logged in successfully', user.username)
     auth_url = _build_auth_url(scopes=Config.SCOPE, state=session["state"])
     return render_template('login.html', title='Sign In', form=form, auth_url=auth_url)
 
